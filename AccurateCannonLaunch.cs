@@ -8,6 +8,7 @@ namespace AccurateCannonLaunch
 {
     public class AccurateCannonLaunch : ModBehaviour
     {
+        public INewHorizons NewHorizons;
         private GameObject _giantsDeep;
         private GameObject _probeCannon;
         private GameObject _newProbeTrackingModule;
