@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/ow-mods/owml/master/schemas/manifest_schema.json",
   "filename": "AccurateCannonLaunch.dll",
   "author": "atk",
-  "name": "AccurateCannonLaunch",
+  "name": "Accurate Cannon Launch",
   "uniqueName": "atk.AccurateCannonLaunch",
   "version": "0.1.0",
   "owmlVersion": "2.9.8",
