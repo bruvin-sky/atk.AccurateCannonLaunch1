@@ -21,7 +21,7 @@ namespace AccurateCannonLaunch
         //private GameObject _fakeDebris1;
         //private GameObject _fakeDebris2;
 
-        private UnityEngine.GameObject _cloudSplashEffect; 
+        private UnityEngine.GameObject _cloudSplashEffect;
         private UnityEngine.GameObject _oceanSplashEffect;
 
         private bool _wokenUp;
@@ -59,8 +59,8 @@ namespace AccurateCannonLaunch
                 if (loadScene != OWScene.SolarSystem) return;
                 ModHelper.Console.WriteLine("Loaded into solar system!", MessageType.Success);
 
-                _giantsDeep = GameObject.Find("GiantsDeep_Body"); 
-                _probeCannon = GameObject.Find("OrbitalProbeCannon_Body"); 
+                _giantsDeep = GameObject.Find("GiantsDeep_Body");
+                _probeCannon = GameObject.Find("OrbitalProbeCannon_Body");
 
                 _launchController = _probeCannon.GetComponent<OrbitalProbeLaunchController>();
                 /*_fakeDebris1 = _launchController._fakeDebrisBodies[0].gameObject;
@@ -93,7 +93,7 @@ namespace AccurateCannonLaunch
             }
 
             GabbroIsleSpawn = config.GetSettingsValue<bool>(nameof(GabbroIsleSpawn));
-            if (PlayerData._currentGameSave != null)
+            /*if (PlayerData._currentGameSave != null)
             {
                 if (GabbroIsleSpawn)
                 {
@@ -103,7 +103,7 @@ namespace AccurateCannonLaunch
                 {
                     PlayerData._currentGameSave.SetPersistentCondition("GabbroIsleSpawnPersist", false);
                 }
-            } 
+            }*/
         }
 
         private void OnDestroy()
@@ -111,6 +111,7 @@ namespace AccurateCannonLaunch
             GlobalMessenger<int>.RemoveListener("StartOfTimeLoop", OnStartOfTimeLoop);
             GlobalMessenger.RemoveListener("WakeUp", OnWakeUp);
         }
+
         private void OnStartOfTimeLoop(int loopCount)
         { 
             _wokenUp = false;
@@ -120,18 +121,8 @@ namespace AccurateCannonLaunch
             _glowed = false;
             _moduleSwapped = false;
             t = 0;
-            // _debrisSwapped = false;
-
-            if (GabbroIsleSpawn)
-            {
-                PlayerData._currentGameSave.SetPersistentCondition("GabbroIsleSpawnPersist", true);
-            }
-            else
-            {
-                var goddamnDumbSpawn = Locator._timberHearth.transform.Find("Sector_TH/Sector_Village/Interactables_Village/LaunchTower/Spawn_TH").GetComponent<SpawnPoint>();
-                Locator._playerBody.GetComponent<PlayerSpawner>()._initialSpawnPoint = goddamnDumbSpawn;
-                PlayerData._currentGameSave.SetPersistentCondition("GabbroIsleSpawnPersist", false);
-            }
+            // _debrisSwapped = false; 
+             
 
             if (_launchController.enabled)
             {
@@ -163,6 +154,20 @@ namespace AccurateCannonLaunch
 
                 _wokenUp = true;
             }
+
+            {
+                if (GabbroIsleSpawn)
+                {
+                    var _gabbroSpawn = GameObject.Find("GabbroIsland_Body/PlayerSpawnPoint").GetComponent<SpawnPoint>();
+                    Locator._playerBody.GetComponent<PlayerSpawner>()._initialSpawnPoint = _gabbroSpawn; 
+                    Locator._timberHearth.gameObject.transform.Find("Sector_TH/Sector_Village/Volumes_Village/MusicVolume_Village").gameObject.SetActive(false);
+                }
+                else
+                {
+                    var goddamnDumbSpawn = Locator._timberHearth.transform.Find("Sector_TH/Sector_Village/Interactables_Village/LaunchTower/Spawn_TH").GetComponent<SpawnPoint>();
+                    Locator._playerBody.GetComponent<PlayerSpawner>()._initialSpawnPoint = goddamnDumbSpawn;
+                }
+            }
         }
 
         private void OnWakeUp()
@@ -182,12 +187,7 @@ namespace AccurateCannonLaunch
             else
             {
                 DialogueConditionManager.s_instance.SetConditionState("FAITH_PTM_POOL_DEBUG", false);
-            }
-
-            if(GabbroIsleSpawn)
-            {
-                Locator._timberHearth.gameObject.transform.Find("Sector_TH/Sector_Village/Volumes_Village/MusicVolume_Village").gameObject.SetActive(false);
-            }
+            }  
         }
         /*private void IntroPoolStart()
         {
@@ -225,6 +225,10 @@ namespace AccurateCannonLaunch
                     {
                         if (!_lightningFlashed)
                         {
+                            if (GabbroIsleSpawn)
+                            {
+                                Locator._playerBody.GetComponent<PlayerSpacesuit>().SuitUp(instantSuitUp: true);
+                            }
                             baseCloudLight._audioSourcePool.Peek().AssignAudioLibraryClip(AudioType.EyeBigBang);
                             baseCloudLight.SpawnLightning(_probeCannon.transform.position);
                             foreach (var lightning in baseCloudLight.gameObject.transform.GetComponentsInChildren<CloudLightning>())

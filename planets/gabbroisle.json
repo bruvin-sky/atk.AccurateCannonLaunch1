@@ -8,7 +8,6 @@
 		[
 			{
 				"id": "gabbroisleOPC",
-				"makeDefaultIfPersistentCondition": "GabbroIsleSpawnPersist",
 				
 				"position": {"x": 45.25224, "y": 11.80496, "z": 41.14168},
 				"rotation": {"x": 353.1636, "y": 115.595, "z": 3.576075},
