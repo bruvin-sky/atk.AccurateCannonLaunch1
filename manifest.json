@@ -4,7 +4,7 @@
   "author": "atk",
   "name": "Accurate Cannon Launch",
   "uniqueName": "atk.AccurateCannonLaunch",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "owmlVersion": "2.9.8",
   "dependencies": [ "xen.NewHorizons" ]
 }
