@@ -315,10 +315,11 @@ namespace AccurateCannonLaunch
                         _newProbeModulePool.transform.localEulerAngles = new Vector3(90, 180, 0);
                         if (_origProbeModule != null)
                         {
-                            _origProbeModulePool.gameObject.SetActive(false);
+                            _origProbeModule.SetActive(true);
+                            var airlock = _origProbeModule.gameObject.transform.Find("Interactables_GDCore/Prefab_NOM_Airlock/AirlockController").GetComponent<NomaiAirlock>();
+                            airlock._listInterfaceOrb[0].enabled = true;
                         }
-                        _newProbeTrackingModule.SetActive(false);
-                        _origProbeModule.SetActive(true);
+                        _newProbeTrackingModule.SetActive(false); 
                         _newProbeModulePool._visualSector = _origProbeModulePool._visualSector;
                         _moduleSwapped = true;
                     }
