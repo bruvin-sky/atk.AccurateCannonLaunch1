@@ -6,6 +6,12 @@
       "type": "toggle",
       "value": true,
       "tooltip": "PTM_POOL_TOOLTIP"
+    },
+    "GabbroIsleSpawn": {
+      "title": "Spawn on Giant's Deep",
+      "type": "toggle",
+      "value": true,
+      "tooltip": "GD_SPAWN_TOOLTIP"
     }
   }
 }
