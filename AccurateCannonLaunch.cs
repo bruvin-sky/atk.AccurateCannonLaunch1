@@ -137,10 +137,11 @@ namespace AccurateCannonLaunch
                 _origProbeModule = _giantsDeep.transform.Find("Sector_GD/Sector_GDInterior/Sector_GDCore/Sector_Module_Sunken").gameObject;
                 if (_origProbeModule != null)
                 {
-                    _origProbeModule.gameObject.SetActive(false);
                     _origProbeModulePool = _origProbeModule.transform.Find("Interactables_Module_Sunken/Prefab_NOM_RemoteViewer (1)").GetComponent<NomaiRemoteCameraPlatform>();
                     _origProbeModulePool._id = NomaiRemoteCameraPlatform.ID.None;
+                    _origProbeModulePool.gameObject.SetActive(false);
                     _newProbeModulePool._socket._sector = _origProbeModulePool._socket._sector;
+                    _origProbeModule.gameObject.SetActive(false);
                 } 
 
                 /*var animator = _newProbeTrackingModule.AddComponent<TransformAnimator>();
