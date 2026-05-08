@@ -129,7 +129,7 @@ namespace AccurateCannonLaunch
             if (_launchController.enabled)
             {
                 _newProbeTrackingModule = _probeCannon.transform.Find("Sector_OrbitalProbeCannon/ProbeTracker Module").gameObject; 
-                var gdInteriorSector = _giantsDeep.transform.Find("Sector_GD/Sector_GDInterior").GetComponent<Sector>();
+                var gdInteriorSector = _giantsDeep.transform.Find("Sector_GD/Sector_GDInterior/Sector_GDSurface").GetComponent<Sector>();
                 _newProbeModulePool = _newProbeTrackingModule.transform.Find("Interactables_Module_Sunken/Prefab_NOM_RemoteViewer (1)").GetComponent<NomaiRemoteCameraPlatform>();
                 _newProbeModulePool._visualSector2 = gdInteriorSector;
 

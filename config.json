@@ -10,7 +10,7 @@
     "GabbroIsleSpawn": {
       "title": "Spawn on Giant's Deep",
       "type": "toggle",
-      "value": false,
+      "value": true,
       "tooltip": "GD_SPAWN_TOOLTIP"
     }
   }
