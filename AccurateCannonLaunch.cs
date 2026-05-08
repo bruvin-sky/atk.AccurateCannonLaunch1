@@ -121,6 +121,8 @@ namespace AccurateCannonLaunch
             }
             else
             {
+                var goddamnDumbSpawn = Locator._timberHearth.transform.Find("Sector_TH/Sector_Village/Interactables_Village/LaunchTower/Spawn_TH").GetComponent<SpawnPoint>();
+                Locator._playerBody.GetComponent<PlayerSpawner>()._initialSpawnPoint = goddamnDumbSpawn;
                 PlayerData._currentGameSave.SetPersistentCondition("GabbroIsleSpawnPersist", false);
             }
 
