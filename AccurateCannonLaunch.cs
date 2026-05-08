@@ -132,6 +132,7 @@ namespace AccurateCannonLaunch
                 var gdInteriorSector = _giantsDeep.transform.Find("Sector_GD/Sector_GDInterior/Sector_GDSurface").GetComponent<Sector>();
                 _newProbeModulePool = _newProbeTrackingModule.transform.Find("Interactables_Module_Sunken/Prefab_NOM_RemoteViewer (1)").GetComponent<NomaiRemoteCameraPlatform>();
                 _newProbeModulePool._visualSector2 = gdInteriorSector;
+                _newProbeTrackingModule.transform.Find("Effects_Module_Sunken/sunkenModuleStencil").transform.localScale = new Vector3(18, 18, 18);
 
                 _origProbeModule = _giantsDeep.transform.Find("Sector_GD/Sector_GDInterior/Sector_GDCore/Sector_Module_Sunken").gameObject;
                 if (_origProbeModule != null)
