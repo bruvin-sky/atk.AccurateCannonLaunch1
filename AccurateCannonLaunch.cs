@@ -191,7 +191,7 @@ namespace AccurateCannonLaunch
 
         private void Update()
         {
-            if (_newProbeTrackingModule != null && _origProbeModule != null && _wokenUp)
+            if (_launchController != null && _newProbeTrackingModule != null && _origProbeModule != null && _wokenUp)
             {
                 /*if (_launchController._hasLaunchedProbe && Time.time >= _launchController._probeLaunchTime + 3 && !_debrisSwapped)
                 {
@@ -206,94 +206,97 @@ namespace AccurateCannonLaunch
                     _debrisSwapped = true;
                 }*/
 
-
-                var baseCloudLight = _giantsDeep.transform.Find("Sector_GD/Clouds_GD/LightningGenerator_GD").gameObject.GetComponent<CloudLightningGenerator>();
-                var baseRedLight = baseCloudLight._lightColor;
-
-                if (_launchController._hasLaunchedProbe && Time.time >=_launchController._probeLaunchTime + 1.5 && !_moduleSwapped)
+                if (_launchController.enabled)
                 {
-                    if (!_lightningFlashed)
-                    { 
-                        baseCloudLight._audioSourcePool.Peek().AssignAudioLibraryClip(AudioType.EyeBigBang);
-                        baseCloudLight.SpawnLightning(_probeCannon.transform.position);
-                        foreach (var lightning in baseCloudLight.gameObject.transform.GetComponentsInChildren<CloudLightning>())
+                    var baseCloudLight = _giantsDeep.transform.Find("Sector_GD/Clouds_GD/LightningGenerator_GD").gameObject.GetComponent<CloudLightningGenerator>();
+                    var baseRedLight = baseCloudLight._lightColor;
+
+                    if (_launchController._hasLaunchedProbe && Time.time >= _launchController._probeLaunchTime + 1.5 && !_moduleSwapped)
+                    {
+                        if (!_lightningFlashed)
                         {
-                            lightning.lightColor = new Color(0.44f, 0.2f, 1, 1);
-                        }
-                        var gdCore = _giantsDeep.transform.Find("Sector_GD/Sector_GDInterior/Sector_GDCore");
-                        _newProbeTrackingModule.transform.SetParent(gdCore.transform); 
+                            baseCloudLight._audioSourcePool.Peek().AssignAudioLibraryClip(AudioType.EyeBigBang);
+                            baseCloudLight.SpawnLightning(_probeCannon.transform.position);
+                            foreach (var lightning in baseCloudLight.gameObject.transform.GetComponentsInChildren<CloudLightning>())
+                            {
+                                lightning.lightColor = new Color(0.44f, 0.2f, 1, 1);
+                            }
+                            var gdCore = _giantsDeep.transform.Find("Sector_GD/Sector_GDInterior/Sector_GDCore");
+                            _newProbeTrackingModule.transform.SetParent(gdCore.transform);
 
                             _lightningFlashed = true;
-                    } 
-                    /*if (!_origProbeModuleDestroyed)
-                    {
-                        _origProbeModule = _giantsDeep.transform.Find("Sector_GD/Sector_GDInterior/Sector_GDCore/Sector_Module_Sunken").gameObject;
-                        if (_origProbeModule != null)
-                        {
-                            _origProbeModule.gameObject.SetActive(false);
-                            _origProbeModulePool = _origProbeModule.transform.Find("Interactables_Module_Sunken/Prefab_NOM_RemoteViewer (1)").GetComponent<NomaiRemoteCameraPlatform>();
-                            _origProbeModulePool._id = NomaiRemoteCameraPlatform.ID.None;
-                            _origProbeModuleDestroyed = true;
                         }
-                    }*/
+                        /*if (!_origProbeModuleDestroyed)
+                        {
+                            _origProbeModule = _giantsDeep.transform.Find("Sector_GD/Sector_GDInterior/Sector_GDCore/Sector_Module_Sunken").gameObject;
+                            if (_origProbeModule != null)
+                            {
+                                _origProbeModule.gameObject.SetActive(false);
+                                _origProbeModulePool = _origProbeModule.transform.Find("Interactables_Module_Sunken/Prefab_NOM_RemoteViewer (1)").GetComponent<NomaiRemoteCameraPlatform>();
+                                _origProbeModulePool._id = NomaiRemoteCameraPlatform.ID.None;
+                                _origProbeModuleDestroyed = true;
+                            }
+                        }*/
 
-                    if (!OWTime.IsPaused() && !_moduleSwapped)
-                    {
-                        t += UnityEngine.Time.deltaTime;
+                        if (!OWTime.IsPaused() && !_moduleSwapped)
+                        {
+                            t += UnityEngine.Time.deltaTime;
 
-                        var startingPos = _newProbeTrackingModule.transform.localPosition;
-                        var endPos = new Vector3(-32.4f, -75.2f, -32f);
-                        _newProbeTrackingModule.transform.localPosition = Vector3.Lerp(startingPos, endPos, (t / 2050f));
-                        var startingRot = _newProbeTrackingModule.transform.localEulerAngles;
-                        var endRot = new Vector3(8.224f, 139.4539f, 93.1895f);
-                        _newProbeTrackingModule.transform.localEulerAngles = Vector3.Lerp(startingRot, endRot, (t / 2050f));
-                    } 
-                }
-                if (TimeLoop.GetSecondsElapsed() > 30 && !_moduleSwapped)
-                { 
-                    _newProbeModulePool.transform.SetParent(_origProbeModule.transform);
-                    _newProbeModulePool.transform.localPosition = new Vector3(0, 0, 8.7501f);
-                    _newProbeModulePool.transform.localEulerAngles = new Vector3(90, 180, 0);
-                    _origProbeModulePool.gameObject.SetActive(false);
-                    _newProbeTrackingModule.SetActive(false);
-                    _origProbeModule.SetActive(true);
-                    _newProbeModulePool._visualSector = _origProbeModulePool._visualSector;
-                    _moduleSwapped = true;
-                }
-
-                _gdDistance = Vector3.Distance(_giantsDeep.transform.position, _newProbeTrackingModule.transform.position);
-                if (_gdDistance < 965f && !_cloudSplashed)
-                {
-                    var cloudSplash = GameObject.Instantiate(_cloudSplashEffect, _newProbeTrackingModule.transform);
-                    cloudSplash.transform.position = _newProbeTrackingModule.transform.position;
-                    cloudSplash.AddComponent<AlignWithTargetBody>()._targetBody = _giantsDeep.GetComponent<OWRigidbody>();
-                    //cloudSplash.transform.rotation = _newProbeTrackingModule.transform.rotation;
-                    cloudSplash.transform.localScale = new Vector3(10, 10, 10);
-
-                    foreach (var lightning in baseCloudLight.gameObject.transform.GetComponentsInChildren<CloudLightning>())
-                    {
-                        lightning.lightColor = new Color(0.9133f, 0.3814f, 0.6137f, 1);
+                            var startingPos = _newProbeTrackingModule.transform.localPosition;
+                            var endPos = new Vector3(-32.4f, -75.2f, -32f);
+                            _newProbeTrackingModule.transform.localPosition = Vector3.Lerp(startingPos, endPos, (t / 2050f));
+                            var startingRot = _newProbeTrackingModule.transform.localEulerAngles;
+                            var endRot = new Vector3(8.224f, 139.4539f, 93.1895f);
+                            _newProbeTrackingModule.transform.localEulerAngles = Vector3.Lerp(startingRot, endRot, (t / 2050f));
+                        }
                     }
-                    foreach (var light in baseCloudLight.gameObject.transform.GetComponentsInChildren<OWAudioSource>())
+                    if (TimeLoop.GetSecondsElapsed() > 30 && !_moduleSwapped)
                     {
-                        light.AssignAudioLibraryClip(AudioType.GD_Lightning);
+                        _newProbeModulePool.transform.SetParent(_origProbeModule.transform);
+                        _newProbeModulePool.transform.localPosition = new Vector3(0, 0, 8.7501f);
+                        _newProbeModulePool.transform.localEulerAngles = new Vector3(90, 180, 0);
+                        _origProbeModulePool.gameObject.SetActive(false);
+                        _newProbeTrackingModule.SetActive(false);
+                        _origProbeModule.SetActive(true);
+                        _newProbeModulePool._visualSector = _origProbeModulePool._visualSector;
+                        _moduleSwapped = true;
                     }
-                    _cloudSplashed = true;
+
+                    _gdDistance = Vector3.Distance(_giantsDeep.transform.position, _newProbeTrackingModule.transform.position);
+                    if (_gdDistance < 965f && !_cloudSplashed)
+                    {
+                        var cloudSplash = GameObject.Instantiate(_cloudSplashEffect, _newProbeTrackingModule.transform);
+                        cloudSplash.transform.position = _newProbeTrackingModule.transform.position;
+                        cloudSplash.AddComponent<AlignWithTargetBody>()._targetBody = _giantsDeep.GetComponent<OWRigidbody>();
+                        //cloudSplash.transform.rotation = _newProbeTrackingModule.transform.rotation;
+                        cloudSplash.transform.localScale = new Vector3(10, 10, 10);
+
+                        foreach (var lightning in baseCloudLight.gameObject.transform.GetComponentsInChildren<CloudLightning>())
+                        {
+                            lightning.lightColor = new Color(0.9133f, 0.3814f, 0.6137f, 1);
+                        }
+                        foreach (var light in baseCloudLight.gameObject.transform.GetComponentsInChildren<OWAudioSource>())
+                        {
+                            light.AssignAudioLibraryClip(AudioType.GD_Lightning);
+                        }
+                        _cloudSplashed = true;
+                    }
+                    if (_gdDistance < 500f && !_oceanSplashed)
+                    {
+                        var waveSplash = _giantsDeep.transform.Find("Sector_GD/Sector_GDInterior/Ocean_GD").GetComponent<OceanEffectController>();
+                        waveSplash.CreateSplash(_newProbeTrackingModule.transform.position, 200, 5, 30, 30);
+                        var oceanSplash = GameObject.Instantiate(_oceanSplashEffect, _newProbeTrackingModule.transform);
+                        oceanSplash.GetComponent<SelfDestruct>()._secondsUntilSelfDestruct = 6;
+                        oceanSplash.transform.position = _newProbeTrackingModule.transform.position;
+                        oceanSplash.AddComponent<AlignWithTargetBody>()._targetBody = _giantsDeep.GetComponent<OWRigidbody>();
+                        //oceanSplash.transform.rotation = _newProbeTrackingModule.transform.rotation;
+                        oceanSplash.transform.localScale = new Vector3(10, 10, 10);
+                        oceanSplash.GetComponent<SplashAudioController>()._splashClip = AudioType.GD_IslandSplash;
+                        oceanSplash.GetComponent<SplashAudioController>().PlaySplash();
+                        _oceanSplashed = true;
+                    }
                 }
-                if (_gdDistance < 500f && !_oceanSplashed)
-                {
-                    var waveSplash = _giantsDeep.transform.Find("Sector_GD/Sector_GDInterior/Ocean_GD").GetComponent<OceanEffectController>();
-                    waveSplash.CreateSplash(_newProbeTrackingModule.transform.position, 200, 5, 30, 30);
-                    var oceanSplash = GameObject.Instantiate(_oceanSplashEffect, _newProbeTrackingModule.transform);
-                    oceanSplash.GetComponent<SelfDestruct>()._secondsUntilSelfDestruct = 6;
-                    oceanSplash.transform.position = _newProbeTrackingModule.transform.position;
-                    oceanSplash.AddComponent<AlignWithTargetBody>()._targetBody = _giantsDeep.GetComponent<OWRigidbody>();
-                    //oceanSplash.transform.rotation = _newProbeTrackingModule.transform.rotation;
-                    oceanSplash.transform.localScale = new Vector3(10, 10, 10);
-                    oceanSplash.GetComponent<SplashAudioController>()._splashClip = AudioType.GD_IslandSplash;
-                    oceanSplash.GetComponent<SplashAudioController>().PlaySplash();
-                    _oceanSplashed = true;
-                }
+                
 
             }
         }
