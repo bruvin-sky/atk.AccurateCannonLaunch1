@@ -17,6 +17,7 @@ namespace AccurateCannonLaunch
         private NomaiRemoteCameraPlatform _origProbeModulePool;
         private OrbitalProbeLaunchController _launchController;
         private NomaiRemoteCameraPlatform _debugPool;
+        //private OWRenderer _eyesRenderer;
         //private GameObject _fakeDebris1;
         //private GameObject _fakeDebris2;
 
@@ -27,6 +28,7 @@ namespace AccurateCannonLaunch
         private bool _lightningFlashed;
         private bool _cloudSplashed;
         private bool _oceanSplashed;
+        private bool _glowed;
         private bool _moduleSwapped;
         //private bool _debrisSwapped;
 
@@ -73,6 +75,23 @@ namespace AccurateCannonLaunch
         {
             LaunchTowerPTMPool = config.GetSettingsValue<bool>(nameof(LaunchTowerPTMPool));
 
+            if (LoadManager.s_currentScene == OWScene.SolarSystem)
+            {
+                if (LaunchTowerPTMPool)
+                {
+                    DialogueConditionManager.s_instance.SetConditionState("FAITH_PTM_POOL_DEBUG", true);
+                }
+                else
+                {
+                    DialogueConditionManager.s_instance.SetConditionState("FAITH_PTM_POOL_DEBUG", false);
+                    var itemTool = Locator.GetToolModeSwapper().GetItemCarryTool();
+                    if (itemTool._heldItem != null && itemTool._heldItem.name == "startcamp_SharedStone")
+                    {
+                        GameObject.Destroy(itemTool._heldItem.gameObject);
+                    }
+                }
+            }
+
             GabbroIsleSpawn = config.GetSettingsValue<bool>(nameof(GabbroIsleSpawn));
             if (PlayerData._currentGameSave != null)
             {
@@ -84,7 +103,7 @@ namespace AccurateCannonLaunch
                 {
                     PlayerData._currentGameSave.SetPersistentCondition("GabbroIsleSpawnPersist", false);
                 }
-            }
+            } 
         }
 
         private void OnDestroy()
@@ -98,23 +117,11 @@ namespace AccurateCannonLaunch
             _lightningFlashed = false;
             _oceanSplashed = false;
             _cloudSplashed = false;
+            _glowed = false;
             _moduleSwapped = false;
             t = 0;
             // _debrisSwapped = false;
 
-            if (LaunchTowerPTMPool)
-            {
-                DialogueConditionManager.s_instance.SetConditionState("FAITH_PTM_POOL_DEBUG", true);
-            }
-            else
-            {
-                DialogueConditionManager.s_instance.SetConditionState("FAITH_PTM_POOL_DEBUG", false);
-                var itemTool = Locator.GetToolModeSwapper().GetItemCarryTool();
-                if (itemTool._heldItem != null && itemTool._heldItem.name == "startcamp_SharedStone")
-                {
-                    GameObject.Destroy(itemTool._heldItem.gameObject);
-                }
-            }
             if (GabbroIsleSpawn)
             {
                 PlayerData._currentGameSave.SetPersistentCondition("GabbroIsleSpawnPersist", true);
@@ -128,11 +135,13 @@ namespace AccurateCannonLaunch
 
             if (_launchController.enabled)
             {
-                _newProbeTrackingModule = _probeCannon.transform.Find("Sector_OrbitalProbeCannon/ProbeTracker Module").gameObject; 
+                _newProbeTrackingModule = _probeCannon.transform.Find("Sector_OrbitalProbeCannon/ProbeTracker Module").gameObject;
+                //_eyesRenderer = _newProbeTrackingModule.transform.Find("Props_Module_Sunken/Prefab_NOM_StatueHead/Statue_Eyes").gameObject.AddComponent<OWRenderer>();
+                //_eyesRenderer.SetEmissionColor(new Color(0.5294f, 0.5763f, 1.5f, 1));
                 var gdInteriorSector = _giantsDeep.transform.Find("Sector_GD/Sector_GDInterior/Sector_GDSurface").GetComponent<Sector>();
                 _newProbeModulePool = _newProbeTrackingModule.transform.Find("Interactables_Module_Sunken/Prefab_NOM_RemoteViewer (1)").GetComponent<NomaiRemoteCameraPlatform>();
                 _newProbeModulePool._visualSector2 = gdInteriorSector;
-                _newProbeTrackingModule.transform.Find("Effects_Module_Sunken/sunkenModuleStencil").transform.localScale = new Vector3(18, 18, 18);
+                _newProbeTrackingModule.transform.Find("Effects_Module_Sunken/sunkenModuleStencil").transform.localScale = new Vector3(17.5f, 17.5f, 17.5f);
 
                 _origProbeModule = _giantsDeep.transform.Find("Sector_GD/Sector_GDInterior/Sector_GDCore/Sector_Module_Sunken").gameObject;
                 if (_origProbeModule != null)
@@ -192,7 +201,7 @@ namespace AccurateCannonLaunch
 
         private void Update()
         {
-            if (_launchController != null && _newProbeTrackingModule != null && _origProbeModule != null && _wokenUp)
+            if (_newProbeTrackingModule != null && _origProbeModule != null && _wokenUp)
             {
                 /*if (_launchController._hasLaunchedProbe && Time.time >= _launchController._probeLaunchTime + 3 && !_debrisSwapped)
                 {
@@ -207,12 +216,12 @@ namespace AccurateCannonLaunch
                     _debrisSwapped = true;
                 }*/
 
-                if (_launchController.enabled)
+                if (_launchController._hasLaunchedProbe && !_moduleSwapped)
                 {
                     var baseCloudLight = _giantsDeep.transform.Find("Sector_GD/Clouds_GD/LightningGenerator_GD").gameObject.GetComponent<CloudLightningGenerator>();
                     var baseRedLight = baseCloudLight._lightColor;
 
-                    if (_launchController._hasLaunchedProbe && Time.time >= _launchController._probeLaunchTime + 1.5 && !_moduleSwapped)
+                    if (Time.time >= _launchController._probeLaunchTime + 1.5 && !_moduleSwapped)
                     {
                         if (!_lightningFlashed)
                         {
@@ -251,21 +260,11 @@ namespace AccurateCannonLaunch
                             _newProbeTrackingModule.transform.localEulerAngles = Vector3.Lerp(startingRot, endRot, (t / 2050f));
                         }
                     }
-                    if (TimeLoop.GetSecondsElapsed() > 30 && !_moduleSwapped)
-                    {
-                        _newProbeModulePool.transform.SetParent(_origProbeModule.transform);
-                        _newProbeModulePool.transform.localPosition = new Vector3(0, 0, 8.7501f);
-                        _newProbeModulePool.transform.localEulerAngles = new Vector3(90, 180, 0);
-                        _origProbeModulePool.gameObject.SetActive(false);
-                        _newProbeTrackingModule.SetActive(false);
-                        _origProbeModule.SetActive(true);
-                        _newProbeModulePool._visualSector = _origProbeModulePool._visualSector;
-                        _moduleSwapped = true;
-                    }
 
                     _gdDistance = Vector3.Distance(_giantsDeep.transform.position, _newProbeTrackingModule.transform.position);
                     if (_gdDistance < 965f && !_cloudSplashed)
                     {
+                        //_eyesRenderer.SetEmissionColor(Color.Lerp(Color.black, new Color(0.5294f, 0.5763f, 1.5f, 1), Mathf.MoveTowards(1, 0f, Time.deltaTime)));
                         var cloudSplash = GameObject.Instantiate(_cloudSplashEffect, _newProbeTrackingModule.transform);
                         cloudSplash.transform.position = _newProbeTrackingModule.transform.position;
                         cloudSplash.AddComponent<AlignWithTargetBody>()._targetBody = _giantsDeep.GetComponent<OWRigidbody>();
@@ -280,6 +279,7 @@ namespace AccurateCannonLaunch
                         {
                             light.AssignAudioLibraryClip(AudioType.GD_Lightning);
                         }
+                        _newProbeTrackingModule.transform.Find("Lighting_Module_Sunken/FillLight_SunkenModule").GetComponent<OWLight>().FadeTo(0, 4);
                         _cloudSplashed = true;
                     }
                     if (_gdDistance < 500f && !_oceanSplashed)
@@ -295,6 +295,28 @@ namespace AccurateCannonLaunch
                         oceanSplash.GetComponent<SplashAudioController>()._splashClip = AudioType.GD_IslandSplash;
                         oceanSplash.GetComponent<SplashAudioController>().PlaySplash();
                         _oceanSplashed = true;
+                    }
+
+                    if (_gdDistance < 90f && !_glowed)
+                    {
+                        _newProbeTrackingModule.transform.Find("Lighting_Module_Sunken/FillLight_SunkenModule").GetComponent<OWLight>().FadeTo(1, 3);
+                        _glowed = true;
+                    }
+
+
+                    if (TimeLoop.GetSecondsElapsed() > 30 && !_moduleSwapped)
+                    {
+                        _newProbeModulePool.transform.SetParent(_origProbeModule.transform);
+                        _newProbeModulePool.transform.localPosition = new Vector3(0, 0, 8.7501f);
+                        _newProbeModulePool.transform.localEulerAngles = new Vector3(90, 180, 0);
+                        if (_origProbeModule != null)
+                        {
+                            _origProbeModulePool.gameObject.SetActive(false);
+                        }
+                        _newProbeTrackingModule.SetActive(false);
+                        _origProbeModule.SetActive(true);
+                        _newProbeModulePool._visualSector = _origProbeModulePool._visualSector;
+                        _moduleSwapped = true;
                     }
                 }
                 

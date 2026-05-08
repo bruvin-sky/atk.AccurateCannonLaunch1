@@ -4,13 +4,13 @@
     "LaunchTowerPTMPool": {
       "title": "Launch Tower Projection Pool",
       "type": "toggle",
-      "value": true,
+      "value": false,
       "tooltip": "PTM_POOL_TOOLTIP"
     },
     "GabbroIsleSpawn": {
       "title": "Spawn on Giant's Deep",
       "type": "toggle",
-      "value": false,
+      "value": true,
       "tooltip": "GD_SPAWN_TOOLTIP"
     }
   }
